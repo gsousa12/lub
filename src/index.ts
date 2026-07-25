@@ -1,31 +1,15 @@
 import * as net from "net";
+import { newConn } from "./core/init";
 
-function newConn(socket: net.Socket): void {
-  console.log("new connection", socket.remoteAddress, socket.remotePort);
+const HOST = "127.0.0.1";
+const PORT = 1234;
 
-  socket.on("end", () => {
-    // FIN received. The connection will be closed automatically.
-    console.log("EOF.");
-  });
-
-  socket.on("data", (data: Buffer) => {
-    console.log("data:", data);
-    data.reverse(); // reverse the data in place.
-    socket.write(data); // echo back the data.
-    // actively closed the connection if the data contains 'q'
-    if (data.includes("q")) {
-      console.log("closing.");
-      socket.end();
-      // this will send FIN and close the connection.
-    }
-  });
-}
-
-let server = net.createServer();
+let server = net.createServer({ pauseOnConnect: true });
 
 server.on("error", (err: Error) => {
   throw err;
 });
+
 server.on("connection", newConn);
 
-server.listen({ host: "127.0.0.1", port: 1234 });
+server.listen({ host: HOST, port: PORT });
