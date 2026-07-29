@@ -48,6 +48,10 @@ function soInit(socket: net.Socket): TCPConn {
   socket.on("data", (data: Buffer) => {
     console.assert(!!conn.reader);
 
+    /**
+     * Add backpressure to the socket by pausing it until the data is consumed.
+     * This prevents the socket from overwhelming the application with data.
+     */
     conn.socket.pause();
     conn.reader!.resolve(data);
     conn.reader = null;
